@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ProbList>
+    <Prob id="5001" type="SLOT" file="EgyptianSuns_Prob_DLL.dll">EgyptianSuns</Prob>
+   <Prob id="5002" type="SLOT" file="FiveDragon_Prob_DLL.dll">FiveDragond</Prob>
+   <Prob id="5003" type="SLOT" file="FiftyLions_Prob_DLL.dll">FiftyLionsd</Prob>
+   <Prob id="5004" type="SLOT" file="IrishRainbow_Prob_DLL.dll">IrishRainbowd</Prob>
+   <Prob id="5005" type="SLOT" file="Aladding_Prob_DLL.dll">Aladdingd</Prob>
+   <Prob id="5006" type="SLOT" file="Vegas_Prob_DLL.dll">Vegasd</Prob>
+</ProbList>
+

@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="原始程式檔">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="標頭檔">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="資源檔">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="View">
+      <UniqueIdentifier>{3cc504b9-c554-4e78-b690-eba8e1b03f5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{ac423795-a304-4efd-a767-b931cd3e3934}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{c2d1393b-e5f1-429e-b937-ad8b1a2503e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\ProbTool">
+      <UniqueIdentifier>{b0188913-612c-44c9-a8dc-ba1e618a3c3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\ProtoTool">
+      <UniqueIdentifier>{feec4d92-d75b-4ef3-a371-cca6984854ed}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="View\ui_main.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\ProtoTools\dynamicProtoFactory.h">
+      <Filter>Tools\ProtoTool</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\ProtoTools\protoManager.h">
+      <Filter>Tools\ProtoTool</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\ProtoTools\ProtoMethod.h">
+      <Filter>Tools\ProtoTool</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
+    <ClCompile Include="libdyn.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
+    <ClCompile Include="ProbDebugTool.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
+    <ClCompile Include="View\mainUi.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\PDTModel.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\ProbTools\ProbDllLoader.cpp">
+      <Filter>Tools\ProbTool</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\ProtoTools\dynamicProtoFactory.cpp">
+      <Filter>Tools\ProtoTool</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\ProtoTools\protoManager.cpp">
+      <Filter>Tools\ProtoTool</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\ProtoTools\ProtoMethod.cpp">
+      <Filter>Tools\ProtoTool</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="View\ui_main.ui">
+      <Filter>View</Filter>
+    </CustomBuild>
+    <CustomBuild Include="View\mainUi.h">
+      <Filter>View</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ProbDebugTool.h">
+      <Filter>標頭檔</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Tools\ProbTools\ProbDllLoader.h">
+      <Filter>Tools\ProbTool</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Model\PDTModel.h">
+      <Filter>Model</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,153 @@
+// 機率資訊參數定義 - FiveDragon.
+
+import "prob_base_slot.proto";
+
+package SGT.Prob.FiveDragon;
+
+// =====================================================================
+
+message HitLineList_Proto
+{
+	required int32 hit_line_symb = 1;	//每線中獎圖示
+	required int64 hit_line_win = 2;	//每線贏分 (1:100)
+	repeated int32 hit_line = 3;      	//[5]，線的位置 Ex.(2,2,2,2,-1)表示第三列中四個symbol,沒中的傳-1
+	required bool is_hit_wd = 4;	    //是否有鬼牌 1:有鬼牌 0:沒鬼牌
+};
+
+// Normal Game Demo 輸入資料.
+message CmdIn_NgDemo
+{
+	required int32 chance = 1;						// 目前設定機率.
+}
+
+// Normal Game Demo 輸出資料.
+message CmdOut_NgDemo
+{
+	repeated int32 reel_symb = 1;                   // [15]，不中獎之轉輪結果.
+								                    //  0  1  2  3  4
+								                    //  5  6  7  8  9
+								                    // 10 11 12 13 14
+}
+message Reels
+{
+	repeated int32 reels = 1;  //轉輪帶
+}
+
+//NG Spin 輸入資料
+message CmdIn_NgSpin
+{
+	required int32 chance = 1;							//目前設定機率
+	optional int64 maxwin = 2 [default = -1];			//NG中最大贏分限制。-1 表示沒有贏分上限.(SweepStake不使用)
+	required int32 reels = 3 [default = 25];		    //目前押輪數 (五輪分數是25)
+	required int32 reel_bet = 4;						//目前每輪押分 (1:100)
+	required int32 max_reel_bet = 5;					//每輪最大押分(預設30) (1:100)
+
+	required int32 strip_reeltype = 6;				//自然機率選輪: -1。0表示選中大轉輪。 1表示選中小轉輪。													
+	repeated int32 strip = 7;							// 自然機率：Strip[0]~Strip[4]:-1, Debug：Strip[0]~Strip[4]:轉輪表輪子編號													
+	optional int32 force_bingo = 8 [default = -1];		//強迫中獎(EForceBingo_FiveDragon)，-1 => default
+	required int32 creditrate_index = 9;				//目前CreditRate
+	required int32 is_show_reel = 10;				// 是否產生各輪的轉輪帶。0: 不產生轉輪。1: 產生轉輪。
+}
+
+//NG Spin 輸出資料
+message CmdOut_NgSpin
+{
+	repeated int32 reel_symb = 1;						//[15]，每局產出之轉輪結果
+	                                                    // 0  1  2  3  4
+	                                                    // 5  6  7  8  9
+	                                                    //10 11 12 13 14			 
+	repeated HitLineList_Proto hit_line = 2;            //取出要閃的線位置和贏分   
+	required int64 round_win = 3;					    //每局總贏分 (1:100)
+	repeated int32 prize_list = 4;						//[36]，大牌表
+	required int32 win_type = 5;				        //每局中獎狀態
+	repeated Reels strip = 6;									//[5] 各輪的轉輪帶
+}
+
+// =====================================================================
+
+// FG Spin 輸入資料
+message CmdIn_FgSpin
+{
+	required int32 chance = 1;							//目前設定機率
+	optional int64 maxwin = 2 [default = -1];			//最大贏分限制。-1 表示沒有贏分上限.(SweepStake不使用)
+	required int32 reels = 3 [default = 25];		    //目前押輪數 (五輪分數是25)
+	required int32 reel_bet = 4;						//目前每輪押分 (1:100)
+	required int32 max_reel_bet = 5;					//每輪最大押分 (1:100)
+	required int32 creditrate_index = 6;				//目前CreditRate
+	
+	required int32 strip_reeltype = 7;				//自然機率選輪: -1。0表示選中大轉輪。 1表示選中小轉輪。													
+	repeated int32 strip = 8;							//[5]，Debug 5輪子編號。自然機率：-1
+
+	required int32 fg_index = 9;						//FG玩到第幾局 0-base (新的FG就歸零)
+	required int32 fg_total_round = 10;					//FG總局數
+	required int32 fg_total_round_index = 11;			//玩家選擇局數 0-base, 從左到右，局數(20, 15, 10, 8, 5
+	required int32 is_show_reel = 12;				// 是否產生各輪的轉輪帶。0: 不產生轉輪。1: 產生轉輪。
+}
+
+// FG Spin 輸出資料.
+message CmdOut_FgSpin
+{
+	repeated int32 reel_symb = 1;						//[15]，每局產出之轉輪結果
+	                                                    // 0  1  2  3  4
+	                                                    // 5  6  7  8  9
+	                                                    //10 11 12 13 14								 
+	repeated HitLineList_Proto hit_line = 2;            //取出要閃的線位置和贏分   
+	required int64 round_win = 3;					    //每局總贏分 (1:100)
+	repeated int32 prize_list = 4;						//[36]，大牌表
+	required int32 win_type = 5;				        //每局中獎狀態
+	
+	required int32 rp_double_prize = 6;					//RP紅包加倍倍數(0為預設值,沒中RP加倍) 
+	required bool wd_double = 7;						//是否有鬼牌加倍
+	required int32 line_wd_multi = 8;					//本局若中獎連線含鬼牌加乘倍數
+	
+	repeated Reels strip = 9;									//[5] 各輪的轉輪帶
+}
+
+// 各歷史累積值歸0上限(各歷史累積值歸0上限，預設9兆)
+message CmdIn_ProbValueLimit
+{
+	required int32 prob_value_limit = 1;
+}
+
+message CmdOut_ProbValueLimit
+{
+}
+
+// message Reels
+// {
+// 	repeated int32 reels = 1;  //轉輪帶
+// }
+// 
+// // 取得NG轉輪帶
+// message CmdIn_GetNgStrip
+// {
+// 	required int32 chance			= 1;		// 目前設定機率
+// }
+// 
+// message CmdOut_GetNgStrip
+// {
+// 	repeated Reels strip			= 1;		//[5] 各輪的轉輪帶
+// }
+// 
+// // 取得FG轉輪帶
+// message CmdIn_GetFgStrip
+// {
+// 	required int32 chance			= 1;		// 目前設定機率
+// }
+// 
+// message CmdOut_GetFgStrip
+// {
+// 	repeated Reels strip			= 1;		//[5] 各輪的轉輪帶
+// }
+
+//取得FG 規格
+message CmdIn_GetFGSpec
+{
+}
+
+message CmdOut_GetFGSpec
+{
+	repeated int32 rounds = 1; // [5] FG玩家可選局數
+	repeated int32 multiple = 2; // [15] 局數相對應乘倍
+}
+

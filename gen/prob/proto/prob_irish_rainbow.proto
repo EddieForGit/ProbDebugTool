@@ -1,0 +1,199 @@
+// 機率資訊參數定義 - IrishRainbow.
+
+import "prob_base_slot.proto";
+
+package SGT.Prob.IrishRainbow;
+
+// =====================================================================
+message LinePassReelIndex
+{
+    required int32 line_index = 1;                                 // 中第幾條線的Index
+	repeated int32 reel_index = 2;                                 // [5]，每線經過的SYMB位置，預設值-1
+	required int32 line_symb = 3;                                  // 中獎SYMBOL
+	required int32 line_win = 4;                                   // 線獎贏分
+	
+}
+
+// Debug Box資料.
+message DebugBoxInfo
+{
+	required int32 box_content = 1;						// 寶箱內容
+	required bool bbox_state = 2;						// 寶箱狀態 default: false
+}
+
+// Normal Game Demo 輸入資料.
+message CmdIn_NgDemo
+{
+	required int32 chance = 1;						// 目前設定機率.
+}
+
+// Normal Game Demo 輸出資料.
+message CmdOut_NgDemo
+{
+	repeated int32 reel_symb = 1;                   // [15]，不中獎之轉輪結果.
+								                    //  0  1  2  3  4
+								                    //  5  6  7  8  9
+								                    // 10 11 12 13 14
+}
+
+message Reels
+{
+	repeated int32 reels = 1;  //轉輪帶
+}
+
+//NG Spin 輸入資料
+message CmdIn_NgSpin
+{
+	required int32 chance = 1;							// 目前設定機率
+	required int64 maxwin = 2 [default = -1];			// NG中最大贏分限制。-1 表示沒有贏分上限.(SweepStake不使用)
+	required int32 lines = 3;		                    // 目前押線數
+	required int32 line_bet = 4;						// 目前每線押分 (1:100)
+	required int32 max_line_bet = 5;					// 每線最大押分(預設30) (1:100)
+
+	required int32 debug_reel_type = 6;				//自然機率: -1。 大轉輪: 0, 小轉輪: 1。																																					
+	repeated int32 strip = 7;							// 自然機率：Strip[0]~Strip[4]:-1, Debug：Strip[0]~Strip[4]:轉輪表輪子編號													
+	optional int32 force_bingo = 8 [default = -1];		// 強迫中獎(EForceBingo_IrishRainbow)，-1 => default
+	required int32 creditrate_index = 9;				// 目前CreditRate
+	required int32 is_show_reel = 10;				// 是否產生各輪的轉輪帶。0: 不產生轉輪。1: 產生轉輪。	
+}
+
+//NG Spin 輸出資料
+message CmdOut_NgSpin
+{
+	repeated int32 reel_symb = 1;								//[15]，每局產出之轉輪結果
+																// 0  1  2  3  4
+																// 5  6  7  8  9
+																//10 11 12 13 14
+	repeated SGT.Prob.Base.Slot.WinLineInfo win_line_info = 2;	//[25], 共25條線
+	required int64 round_win = 3;								//每局總贏分 (1:100)
+	repeated int32 prize_list = 4;								//[25]，大牌表
+	required int32 win_type = 5;								//每局中獎狀態
+	repeated LinePassReelIndex line_pass_symb = 6;      // [25]，每線經過的SYMB，不亮的SYMB傳-1	
+	repeated Reels strip = 7;									//[5] 各輪的轉輪帶
+}
+
+// =====================================================================
+
+// FG Box 輸入資料
+message CmdIn_FgBox
+{
+	required int32 fg_player_select = 1;					// 選中項目index
+	required int32 strip_multiple = 2;                     //自然機率: -1; 除錯模式: 2 or 3 or 4
+}
+
+// FG Box 輸出資料
+message CmdOut_FgBox
+{
+	repeated int32 fg_multiple = 1;					      // [3]倍數選項
+	required int32 fg_total_multiple = 2;					// 選中的倍數
+}
+
+
+// FG Spin 輸入資料
+message CmdIn_FgSpin
+{
+	required int32 chance = 1;								// 目前設定機率
+	required int32 lines = 2;								// 目前押線數
+	required int32 line_bet = 3;							// 目前每線押分 (1:100)
+	required int32 max_line_bet = 4;						// 每線最大押分(預設30) (1:100)
+	required int32 creditrate_index = 5;					// 目前CreditRate
+	
+	required int32 debug_reel_type = 6;				//自然機率: -1。 大轉輪: 0, 小轉輪: 1。						
+	repeated int32 strip = 7;								// 自然機率：Strip[0]~Strip[4]:-1, Debug：Strip[0]~Strip[4]:轉輪表輪子編號
+
+	required int32 fg_index = 8;							// FG玩到第幾局 0-base (新的FG就歸零)
+	required int32 fg_total_round = 9 [default = 10];		// FG總局數	default: 10
+	required int32 fg_total_multiple = 10;					// FG倍數	(一開始從FGBOX輸出帶入)
+	required int64 fg_total_win = 11;						// FG目前總贏分 (1:100)
+	required int32 is_show_reel = 12;				// 是否產生各輪的轉輪帶。0: 不產生轉輪。1: 產生轉輪。	
+}
+
+// FG Spin 輸出資料.
+message CmdOut_FgSpin
+{
+	repeated int32 reel_symb = 1;								// [15]，每局產出之轉輪結果
+																//  0  1  2  3  4
+																//  5  6  7  8  9
+																// 10 11 12 13 14								 
+	repeated SGT.Prob.Base.Slot.WinLineInfo win_line_info = 2;  // [25], 共25條線
+	required int64 round_win = 3;								// 每局總贏分 (1:100)
+	required int64 fg_total_win = 4;							// FG總贏分  (1:100)
+	required int32 win_type = 5;								// 每局中獎狀態
+	optional int32 extra_fg_round = 6 [default = 0];			// FG中FG增加的局數，預設0局
+	repeated LinePassReelIndex line_pass_symb = 7;              // [MAX27 = 25+FG+BG]，每線經過的SYMB，不亮的SYMB傳-1.		
+	repeated Reels strip = 8;									//[5] 各輪的轉輪帶	
+	repeated int32 prize_list = 9;								//[25]，大牌表	
+}
+
+// BG Spin 輸入資料
+message CmdIn_BgSpin
+{
+	required int32 chance = 1;								// 目前設定機率
+	required int32 lines = 2;								// 目前押線數
+	required int32 line_bet = 3;							// 目前每線押分 (1:100)
+	required int32 max_line_bet = 4;						// 每線最大押分(預設30) (1:100)
+	required int32 creditrate_index = 5;					// 目前CreditRate
+	repeated int32 strip_box = 6;							// [10] 自然機率:-1;  Debug模式: 輸入所有寶箱內容(不可包括BGBoxClose)
+	
+	required int32 box_poke_time = 7;						// 目前玩第幾次
+	required int32 box_index = 8;							// 選取寶箱位置(0~9). 0: 第一個寶箱
+}
+
+// BG Spin 輸出資料
+message CmdOut_BgSpin
+{
+	required int32 box_content = 1;							// 選到物品 (選三個後結束)
+	required int64 round_win = 2;							// 每局總贏分 (1:100)
+	required int64 bg_total_win = 3;						// BG總贏分  (1:100)
+	
+	repeated int32 box_state = 4;							// [10] 寶箱位置與狀態(已翻開則為寶箱內容， -1: 無翻開，寶箱有物品)
+}
+
+// FG初始局倍數&加局局數
+message CmdIn_FGInitialRound
+{	
+}
+
+message CmdOut_FGInitialRound
+{
+   required int32 fg_initial_round = 1;      //FG初始局數
+   //required int32 fg_initial_multiplier = 2;           //FG初始倍數 
+   required int32 fg_retrigger_round = 2;      //FG加局局數
+}
+
+// 各歷史累積值歸0上限(各歷史累積值歸0上限，預設9兆)
+message CmdIn_ProbValueLimit
+{
+	required int32 prob_value_limit = 1;
+}
+
+message CmdOut_ProbValueLimit
+{
+}
+
+// message Reels
+// {
+// 	repeated int32 reels = 1;  //轉輪帶
+// }
+// 
+// // 取得NG轉輪帶
+// message CmdIn_GetNgStrip
+// {
+// 	required int32 chance			= 1;		// 目前設定機率
+// }
+// 
+// message CmdOut_GetNgStrip
+// {
+// 	repeated Reels strip			= 1;		//[5] 各輪的轉輪帶
+// }
+// 
+// // 取得FG轉輪帶
+// message CmdIn_GetFgStrip
+// {
+// 	required int32 chance			= 1;		// 目前設定機率
+// }
+// 
+// message CmdOut_GetFgStrip
+// {
+// 	repeated Reels strip			= 1;		//[5] 各輪的轉輪帶
+// }

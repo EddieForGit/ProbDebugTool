@@ -1,0 +1,71 @@
+package SGT.Prob.Base.Slot;
+
+/*! \file
+* slot 的機率公規.
+*/
+
+/*===============================================================================================*/
+////////////////////////////////// for Data: Begin //////////////////////////////////////
+//! 連線資訊.
+message Line
+{
+	required int64 left_value = 1;
+	required int64 right_value = 2;
+}
+
+//! 中獎線資訊.
+message WinLineInfo
+{
+	required Line win_symbol = 1; //!< 每線中獎圖示
+	required Line win_count = 2; //!< 每線連線數
+	required Line win_score = 3; //!< 每線贏分
+}
+
+//! Symbol的線獎.
+message LineSeepays
+{
+	repeated int32 symbol_seepays = 1;
+}
+
+//! 取得Symbol在線上的位置.
+message LineChart
+{
+	repeated int32 position = 1; //!< Symbol位置.
+}
+
+//////////////////////////////////  for Data: End  //////////////////////////////////////
+/*===============================================================================================*/
+
+/*===============================================================================================*/
+////////////////////////////////// for Command: Begin //////////////////////////////////////
+// =====================================================================
+//! Pay Chart.
+/*!
+	詢問 所有線經過的 symbol index.
+	response: CmdOut_GetPayChart .
+*/
+message CmdIn_GetPayChart
+{
+}
+
+message CmdOut_GetPayChart
+{
+	repeated LineChart lines = 1; //!< 每線的Pay Chart.
+}
+
+//! 取得線獎賠率表.
+/*!
+	response: CmdOut_GetLineSeepays .
+*/
+message CmdIn_GetLineSeepays
+{
+}
+
+//! 順序參考各遊戲.
+message CmdOut_GetLineSeepays
+{
+	repeated LineSeepays line_seepays = 1;
+}
+//////////////////////////////////  for Command: End  //////////////////////////////////////
+/*===============================================================================================*/
+

@@ -1,0 +1,249 @@
+package SGT.Prob.Base;
+
+/*! \file
+* 機率公規.
+* 主要用法上, 大致說明入下:
+* 透過 IProbInterface 來做 Prob_xxx.dll 的載入方式.
+
+* ex1:
+* 若整個遊戲只需要一個 GameProb 服務所有的 machine:
+  可以 只配置一個 IProbInterface* createInstance()
+  透過此 IProbInterface* 來達到所有的需求.
+
+* ex2:
+* 若有需要 一個 machine 對應一個 GameProb (如 net, ccs, web 等平台)
+  則 需要建立 對應 global prob 的 IProbInterface 即各個 machine 的 IProbInterface.
+  如 : GameLogic: => IProbInterface* (for Global) 來服務 CmdIn_Create_Global, CmdIn_GetVersion, etc...
+       每個 Game : => IProbInterface* (for Game) 來服務 CmdIn_Create_Game, CmdIn_GetStorageData_Game, etc...
+	   GaneIndex 由外部使用者決定, Prob_xxx.dll 就不負責做此運作.
+*/
+
+/*===============================================================================================*/
+////////////////////////////////// for Data: Begin //////////////////////////////////////
+//! Response 結果, 通用性使用.
+/*!
+*/
+message Response
+{
+	required bool result = 1; //!< 回應結果 (true or false).
+    optional string detail = 2; //!< 細部資訊.
+}
+//////////////////////////////////  for Data: End  //////////////////////////////////////
+/*===============================================================================================*/
+
+/*===============================================================================================*/
+////////////////////////////////// for Command: Begin //////////////////////////////////////
+//! 取得機率版本資訊.
+/*!
+response: CmdOut_GetVersion
+*/
+message CmdIn_GetVersion
+{
+	required int32 chance = 1;
+}
+
+message CmdOut_GetVersion
+{
+	required string version_data = 1;
+}
+
+// =====================================================================
+//! 取得要儲存 跨機台的共用資料(純字串).
+/*!
+response: CmdOut_GetStorageData_Global
+*/
+message CmdIn_GetStorageData_Global
+{
+}
+
+message CmdOut_GetStorageData_Global
+{
+	required string data = 1; //!< 存檔內容 (純字串).
+}
+
+// =====================================================================
+//! 取得要儲存 機台的資料(純字串).
+/*!
+response: CmdOut_GetStorageData_Game
+*/
+message CmdIn_GetStorageData_Game
+{
+}
+
+message CmdOut_GetStorageData_Game
+{
+	required string data = 1; //!< 存檔內容 (純字串).
+}
+
+// =====================================================================
+//! 建立 Global Prob.
+/*!
+response: CmdOut_Create_Global
+*/
+message CmdIn_Create_Global
+{
+	required string global_key = 1;
+	required bool prob_by_seat = 2;
+	optional string save_data = 3; //!< 存檔內容 (純字串).
+}
+
+message CmdOut_Create_Global
+{
+	required Response response = 1;
+}
+
+// =====================================================================
+//! 釋放 Global Prob.
+/*!
+response: CmdOut_Destroy_Global
+*/
+message CmdIn_Destroy_Global
+{
+	required string global_key = 1;
+}
+
+message CmdOut_Destroy_Global
+{
+	required Response response = 1;
+}
+
+// =====================================================================
+//! 建立 Game Prob.
+/*!
+response: CmdOut_Create_Game
+*/
+message CmdIn_Create_Game
+{
+	required string global_key = 1;
+	optional string save_data = 2; //!< 存檔內容 (純字串).
+}
+
+message CmdOut_Create_Game
+{
+	required Response response = 1;
+}
+
+// =====================================================================
+//! 釋放 Destroy Prob.
+/*!
+response: CmdOut_Destroy_Game
+*/
+message CmdIn_Destroy_Game
+{
+}
+
+message CmdOut_Destroy_Game
+{
+	required Response response = 1;
+}
+
+// =====================================================================
+//! 詢問機率ID是否合法.
+/*!
+response: CmdOut_Is_Legal_Chance
+*/
+message CmdIn_Is_Legal_Chance
+{
+	required int32 chance = 1;
+}
+
+message CmdOut_Is_Legal_Chance
+{
+	required Response response = 1;
+}
+
+// =====================================================================
+//! 設定Game ID. (Important: 必須在DLL load完後, 立刻設定Game ID)
+/*!
+response: N/A
+*/
+message CmdIn_Set_GameID
+{
+	required int32 game_id = 1;
+}
+
+/************************************************************************/
+/*  Sweepstakes用                                                       */
+/************************************************************************/
+// =====================================================================
+// 存檔資料的長度.
+message CmdIn_GetStorageDataLength_SS
+{
+}
+
+message CmdOut_GetStorageDataLength_SS
+{
+	required int32 data_length = 1;
+}
+
+// =====================================================================
+// 取得存檔資料內容.
+message CmdIn_GetStorageData_SS
+{
+}
+
+message CmdOut_GetStorageData_SS
+{
+	required bytes data = 1;
+}
+
+// =====================================================================
+// 設定存檔資料內容.
+message CmdIn_SetStorageData_SS
+{
+	required bytes data = 1;
+}
+
+message CmdOut_SetStorageData_SS
+{
+}
+
+// =====================================================================
+// 建立機率.
+message CmdIn_CreateProb_SS
+{
+	required int32 max_bet = 1;		// 最大押注.
+	required int32 game_level = 2;	// 遊戲難度.
+	required bytes data = 3;
+}
+
+message CmdOut_CreateProb_SS
+{
+}
+
+// =====================================================================
+// 重置機率.
+message CmdIn_ResetProb_SS
+{
+	required int32 max_bet = 1;		// 最大押注
+	required int32 game_level = 2;	// 遊戲難度(GameLevel)
+	//required int32 credit_in = 3;	// 總入分 , SS改為無意義 , 傳入0即可
+	//required int32 credit_out = 4;	// 總退分 , SS改為無意義 , 傳入0即可
+}
+
+message CmdOut_ResetProb_SS
+{
+}
+
+/************************************************************************/
+// NG快速開獎 , 不需要使用roundEnd
+// @傳入參數
+// - const int iMachineID 			: 副機編號
+// - const int iBet					: 押注
+// @回傳值 - Win Value				: 中獎分數
+/************************************************************************/
+//const int InstantOpen( const int iMachineID , const int iBet) ;
+message CmdIn_InstantOpen
+{
+	required int32 i_machine_id = 1;
+	required int32 i_bet = 2;
+}
+
+message CmdOut_InstantOpen
+{
+	required int32 round_win = 1;
+}
+
+
+//////////////////////////////////  for Command: End  //////////////////////////////////////
+/*===============================================================================================*/

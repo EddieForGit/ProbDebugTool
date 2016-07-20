@@ -1,0 +1,159 @@
+package Base;
+
+/*! \file
+* 通用型的 定義 (Notification, packet, struct).
+* 可能是 platformBase, GLLoader, 通訊層, etc...
+* 目前有點亂, 應該再重新整理過.
+*/
+
+/*===============================================================================================*/
+////////////////////////////////// for Data: Begin //////////////////////////////////////
+/*! CmdPack
+* 基礎結構, 可包裝成任何 message.
+*/
+message CmdPack
+{
+    required string type = 1;
+    required bytes data = 2;
+}
+//////////////////////////////////  for Data: End  //////////////////////////////////////
+/*===============================================================================================*/
+
+/*===============================================================================================*/
+////////////////////////////////// for Notification: Begin //////////////////////////////////////
+//! RunLogic : 定期通知.
+/*!
+# 通知者:
+platfromBase 需要定期發送的通知事件.
+loader 也會定期發送此通知給 plarformBase.
+
+# 接收端: 可能對象, coreMgr, platformBase.
+
+# platformBase 與 載體也是用 notification 來溝通者, 則 host 及可用此通知給 platformBase
+platformBase 收到後, 處理完自己需處理的事情再轉發給 CoreMgr 即可.
+
+# CoreMgr 會收此通知, 收到時會針對CoreMgr所有的 dispatcher 呼叫其 runLogic
+(包含 CoreMgr's & All Games's dispatcher )
+*/
+message RunLogic
+{
+}
+
+//! 取得 GameLogic 的設定檔..
+/*!
+ResponseInfo: SGT.Model.Basic.Value. (string: fileName)
+
+目前 Host (GLLoader.exe) 會回應 含相對路徑(相對於載體<exe>).
+之後 PlatfromBase 也需要提供此功能, 給 GameCore 使用.
+CoreMgr 就不再需要帶入 buffer(gamelogic.ini) 的參數了.
+*/
+message GetGameLogicConfigFileName
+{
+}
+
+//! LogMessage .
+/*!
+發送 log 訊息 .
+*/
+message LogMessage
+{
+    enum EnuType
+    {
+        Debug   = 0;
+        Info    = 1;
+        Waring  = 2;
+        Error   = 3;
+    }
+
+    required string sender = 1; //!< 發送者.
+    required EnuType type = 2; //!< log 種類.
+    required string contain = 3; //!< 標題.
+    optional CmdPack data = 4; //!< 自訂格式.
+}
+//////////////////////////////////  for Notification: End  //////////////////////////////////////
+/*===============================================================================================*/
+
+/*===============================================================================================*/
+////////////////////////////////// for 轉發: Begin //////////////////////////////////////
+//! 看到此封包往 Flash 送
+message ToFlash // 要通知小丘改
+{
+    optional int32 round = 1;
+    optional int32 count = 2;
+    required CmdPack pack = 3;
+}
+
+//! 看到此封包往 Game 送
+message ToGame
+{
+    optional int32 game_id = 1;
+    optional int32 machine_id = 2;
+    optional int32 round = 3;
+    optional int32 count = 4;
+    required CmdPack pack = 5;
+}
+
+//! 看到此封包往 機率 送
+message ToProb
+{
+    optional int32 game_id = 1;
+    optional int32 machine_id = 2;
+    required CmdPack pack = 3;
+}
+
+//! 送給 Server 群封包用
+message ToServer
+{
+    optional int32 machine_id = 1;
+    required CmdPack pack = 2;
+}
+
+//! 看到此封包往 GM 送
+message ToGM
+{
+    required string type = 1;
+    required bytes data = 2;
+}
+
+//! 往 Device 送
+message ToDevice
+{
+    optional int32 game_id = 1;
+    optional int32 machine_id = 2;
+    required CmdPack pack = 3;
+}
+//////////////////////////////////  for 轉發: End  //////////////////////////////////////
+/*===============================================================================================*/
+
+/*===============================================================================================*/
+////////////////////////////////// for Falsh: Begin //////////////////////////////////////
+//! 以下 Flash  專屬
+message OldPack
+{
+    required bytes data = 1;
+}
+//////////////////////////////////  for Falsh: End  //////////////////////////////////////
+/*===============================================================================================*/
+
+/*===============================================================================================*/
+////////////////////////////////// for 通訊層: Begin //////////////////////////////////////
+//! 通訊層用
+message RSAPublicKey
+{
+    required string data = 1;
+}
+
+//! 通訊層用
+message AESKey
+{
+    required bytes data = 1;
+}
+
+//! 通訊層用
+message EncryptData
+{
+    required bytes data = 1;
+}
+//////////////////////////////////  for 通訊層: End  //////////////////////////////////////
+/*===============================================================================================*/
+
