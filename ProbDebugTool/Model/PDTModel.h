@@ -35,16 +35,21 @@ public:
 	~PDTModel();
 
 	ProbDllLoader* getLoader();
-	QMap<int, QMap<QString, QVariant>> getSetInfo();
+	QMap<int, QMap<QString, QVariant>> getSetInfo(); // 取得當前遊戲的setInfo資訊
 	void setSettings(QMap<int, QMap<QString, QVariant>> settings);
-	void initStrips();
+	void initStrips(); // 發給prob初始spin, 取得init轉輪表.
 
 private:
 	void saveRestore(QMap<int, QMap<QString, QVariant>> data);
 	void setProtoFeild(google::protobuf::Message* msg, QString name, int type, QVariant data, bool reels = false);
 
+protected slots:
+	void slot_onProb_out(google::protobuf::Message* msg);
+
 private:
 	QString store_path;
+	QString proto_path;
+
 	QMap<int, QString> m_protoNames;
 	QMap<int, QMap<QString, QVariant>> m_settings;
 

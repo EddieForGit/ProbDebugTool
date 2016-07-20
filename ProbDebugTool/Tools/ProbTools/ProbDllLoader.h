@@ -15,6 +15,7 @@ public:
 
 	// prob_in interface.
 	void SendToProbDll(google::protobuf::Message* _in_msg);
+
 	// prob_out interface.
 	void out(int no, int game_id, const char *begin, int size);
 	
@@ -35,7 +36,8 @@ public:
 	//QMap<QString, int> getProbNameMap();
 
 signals:
-	void prob_out_signal(google::protobuf::Message*);
+	//void prob_out_signal(google::protobuf::Message*);
+	void onProb_out(google::protobuf::Message*);
 
 private:
 	void initProbFromDll(QString path);

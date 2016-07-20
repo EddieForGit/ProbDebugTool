@@ -14,11 +14,11 @@ class mainUi : public QWidget
 
 	enum Type_SetInfo {
 		// Model&View須同步
-		T_Con = 0,
-		T_Ng = 1,
-		T_Fg = 2,
+		T_Con	= 0,
+		T_Ng	= 1,
+		T_Fg	= 2,
 
-		T_count = 3
+		T_count	= 3
 	};
 
 public:
@@ -27,7 +27,7 @@ public:
 
 private:
 	void createUiGroupBox(QGroupBox *gb, QString objName, QMap<QString, QVariant> info);
-	QMap<int, QMap < QString, QVariant>> getSettings();
+	QMap<int, QMap < QString, QVariant>> getSettings(); // 取得ui_setting頁上面的資訊.
 
 signals:
 	void onChangeProb(QString);

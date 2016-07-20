@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_ProbDllLoader_t {
     QByteArrayData data[4];
-    char stringdata0[58];
+    char stringdata0[53];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,12 +30,12 @@ struct qt_meta_stringdata_ProbDllLoader_t {
 static const qt_meta_stringdata_ProbDllLoader_t qt_meta_stringdata_ProbDllLoader = {
     {
 QT_MOC_LITERAL(0, 0, 13), // "ProbDllLoader"
-QT_MOC_LITERAL(1, 14, 15), // "prob_out_signal"
-QT_MOC_LITERAL(2, 30, 0), // ""
-QT_MOC_LITERAL(3, 31, 26) // "google::protobuf::Message*"
+QT_MOC_LITERAL(1, 14, 10), // "onProb_out"
+QT_MOC_LITERAL(2, 25, 0), // ""
+QT_MOC_LITERAL(3, 26, 26) // "google::protobuf::Message*"
 
     },
-    "ProbDllLoader\0prob_out_signal\0\0"
+    "ProbDllLoader\0onProb_out\0\0"
     "google::protobuf::Message*"
 };
 #undef QT_MOC_LITERAL
@@ -68,7 +68,7 @@ void ProbDllLoader::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         ProbDllLoader *_t = static_cast<ProbDllLoader *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->prob_out_signal((*reinterpret_cast< google::protobuf::Message*(*)>(_a[1]))); break;
+        case 0: _t->onProb_out((*reinterpret_cast< google::protobuf::Message*(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -76,7 +76,7 @@ void ProbDllLoader::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         void **func = reinterpret_cast<void **>(_a[1]);
         {
             typedef void (ProbDllLoader::*_t)(google::protobuf::Message * );
-            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&ProbDllLoader::prob_out_signal)) {
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&ProbDllLoader::onProb_out)) {
                 *result = 0;
             }
         }
@@ -120,7 +120,7 @@ int ProbDllLoader::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void ProbDllLoader::prob_out_signal(google::protobuf::Message * _t1)
+void ProbDllLoader::onProb_out(google::protobuf::Message * _t1)
 {
     void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

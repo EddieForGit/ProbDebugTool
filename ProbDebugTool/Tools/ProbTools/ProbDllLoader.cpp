@@ -117,14 +117,17 @@ void ProbDllLoader::initProbFromDll(QString path)
 		}
 	}
 
-	///> CreateGlobalData
-	auto InDll = find_prob_by_game_id(cur_id);
-	if (InDll)
-	{
-		std::string b("");
-		InDll->Create_Globa(false, b.data(), b.size());
-	}
 
+	///> CreateGlobalData
+	for (auto p : m_probs)
+	{
+		auto InDll = find_prob_by_game_id(p->id);
+		if (InDll)
+		{
+			std::string b("");
+			InDll->Create_Globa(false, b.data(), b.size());
+		}
+	}
 }
 
 //void ProbDllLoader::initStrips(google::protobuf::Message* msg, int spin_type)
@@ -325,33 +328,39 @@ void ProbDllLoader::SendToProbDll(google::protobuf::Message * _in_msg)
 		auto CmdPack = m_protoM->getMessage("Base", "Base.CmdPack");
 		//required string type = 1;
 		m_protoM->setItem(CmdPack, "type", _in_msg->GetDescriptor()->full_name());
-		//m_protoM->setItem(CmdPack, "type", std::string("CmdIn_NgSpin"));
 		//required bytes data = 2;
 		m_protoM->setItem(CmdPack, "data", _in_msg->SerializeAsString());
 		
+		qDebug() << QString("***[send] prob %1").arg(QString::fromStdString(_in_msg->GetDescriptor()->full_name()));
+		qDebug() << QString::fromStdString(_in_msg->DebugString());
+
 		///> ProbIn
 		InDll->Prob_In(0, CmdPack->SerializeAsString().data(), CmdPack->ByteSize());
 	}
 	else
 		qDebug() << "Prob_In error!";
-
 }
 
 // 所有機率回乎介面
 void ProbDllLoader::out(int no, int game_id, const char *begin, int size)
 {
-	auto o_ = m_protoM->getMessage("Base", "Base.CmdPack");
-	if (o_->ParsePartialFromArray(begin, size))
-	{
-		//qDebug() << QString("success accept %1").arg(QString::fromStdString(m_protoM->getItemString(o_, "type")));
-	}
+	auto cmd = m_protoM->getMessage("Base", "Base.CmdPack");
 
-	auto o_prob = m_protoM->getMessage("SGT.Prob.FiftyLions", "SGT.Prob.FiftyLions.CmdIn_NgSpin");
-	if (o_prob->ParsePartialFromString(m_protoM->getItemString(o_, "data")))
+	if (cmd->ParsePartialFromArray(begin, size))
 	{
-		qDebug() << QString::fromStdString(o_prob->DebugString());
+		QString type = QString::fromStdString(m_protoM->getItemString(cmd, "type"));
+		qDebug() << QString("***[accept] prob %1").arg(type);
+		
+		if (type == "SGT.Prob.FiftyLions.CmdOut_NgSpin")
+		{
+			auto out_prob = m_protoM->getMessage("SGT.Prob.FiftyLions", type);
+			if (out_prob->ParsePartialFromString(m_protoM->getItemString(cmd, "data")))
+			{
+				qDebug() << QString::fromStdString(out_prob->DebugString());
+				emit onProb_out(out_prob);
+			}
+		}
 	}
-	auto b = 1;
 
 	//QString str_name = m_model->getConInfoMap().value(QString(PROB_NAME));
 	//QString str_ngSpin = QString("%1.%2").arg(str_name).arg(m_model->getConInfoMap().value(NG_SPIN_OUT_NAME));
@@ -415,13 +424,9 @@ QMap<QString, int> ProbDllLoader::getProbs()
 }
 
 void ProbDllLoader::setCurId(int id)
-{
-	cur_id = id;
-}
+{ cur_id = id; }
 
 int ProbDllLoader::getCurId()
-{
-	return cur_id;
-}
+{ return cur_id; }
 
 #include "ProbDllLoader.moc"

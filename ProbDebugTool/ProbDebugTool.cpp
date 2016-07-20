@@ -7,8 +7,9 @@
 
 ProbDebugTool::ProbDebugTool(QObject* parent)
 	: QObject(parent)
-	, m_ui(new mainUi())
 	, m_model(new PDTModel())
+	, m_ui(new mainUi())
+
 	
 {
 	if (!m_model->getLoader()->getProbs().isEmpty())
@@ -17,6 +18,8 @@ ProbDebugTool::ProbDebugTool(QObject* parent)
 
 		// ToView
 		QObject::connect(this, SIGNAL(onInit(QMap<QString, int>)), m_ui, SLOT(slot_onInit(QMap<QString, int>)));
+		QObject::connect(this, SIGNAL(onSetInfo(QMap<int, QMap<QString, QVariant>>)), m_ui, SLOT(slot_onSetInfo(QMap<int, QMap<QString, QVariant>>)));
+
 		// FromView
 		QObject::connect(m_ui, SIGNAL(onChangeProb(QString)), this, SLOT(slot_onChangeProb(QString)));
 		QObject::connect(m_ui, SIGNAL(onSetSetting(QMap<int, QMap < QString, QVariant>>)), this, SLOT(slot_onSetSetting(QMap<int, QMap < QString, QVariant>>)));
@@ -36,12 +39,10 @@ ProbDebugTool::~ProbDebugTool()
 void ProbDebugTool::slot_onChangeProb(QString name)
 {
 	auto id = m_model->getLoader()->getProbs().value(name);
+
+	// set current id
 	m_model->getLoader()->setCurId(id);
 
-	QObject::connect(
-		this, SIGNAL(onSetInfo(QMap<int,QMap<QString,QVariant>>)), 
-		m_ui, SLOT(slot_onSetInfo(QMap<int, QMap<QString, QVariant>>)));
-	
 	// get setInfo
 	auto info = m_model->getSetInfo();
 	

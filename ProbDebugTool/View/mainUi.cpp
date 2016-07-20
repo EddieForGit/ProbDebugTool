@@ -50,7 +50,7 @@ QMap<int, QMap<QString, QVariant>> mainUi::getSettings()
 {
 	QMap<int, QMap<QString, QVariant>> all_map;
 
-	auto groupBoxs = ui_setting->findChildren<QGroupBox*>();
+	auto groupBoxs = ui_setting->findChildren<QGroupBox*>(); // 取得ui_setting內QGroupBox的成員.
 	for (auto gb : groupBoxs)
 	{
 		QMap<QString, QVariant> map;
@@ -58,7 +58,7 @@ QMap<int, QMap<QString, QVariant>> mainUi::getSettings()
 		auto labels = gb->findChildren<QLabel*>();
 		auto edits = gb->findChildren<QLineEdit*>();
 
-		if (labels.count() == edits.count())
+		if (labels.count() == edits.count()) // 一個label對一個edit, 避免key對value不匹配.
 		{
 			for (int idx = 0; idx < labels.size(); ++idx)
 			{
@@ -68,11 +68,17 @@ QMap<int, QMap<QString, QVariant>> mainUi::getSettings()
 			int type(-1);
 			QString name = gb->objectName();
 			if (name == "gb_con")
+			{
 				type = Type_SetInfo::T_Con;
+			}
 			else if (name == "gb_ng")
+			{
 				type = Type_SetInfo::T_Ng;
+			}
 			else if (name == "gb_fg")
+			{
 				type = Type_SetInfo::T_Fg;
+			}
 			else
 				qDebug() << "setting's type is error.";
 
@@ -89,6 +95,7 @@ QMap<int, QMap<QString, QVariant>> mainUi::getSettings()
 
 void mainUi::slot_onSetInfo(QMap<int, QMap<QString, QVariant>> setInfo)
 {
+	// 收到setInfo, 設定設定頁UI資訊. (依照傳來的setInfo內容動態產生UI畫面)
 	ui_setting = new QWidget();
 	ui_setting->setWindowTitle("Set");
 	ui_setting->setWindowFlags(ui_setting->windowFlags() & ~Qt::WindowCloseButtonHint); //disable close btn
@@ -128,7 +135,7 @@ void mainUi::slot_onSetInfo(QMap<int, QMap<QString, QVariant>> setInfo)
 	btn->setMaximumHeight(this->ui->set_btn->height());
 	btn_ly->addWidget(btn);
 	QObject::connect(btn, &QPushButton::clicked, [=]() {
-		emit onSetSetting(getSettings());
+		emit onSetSetting(getSettings()); // 發出ui_setting頁上的資訊.
 	});
 
 	// cancel
@@ -137,6 +144,7 @@ void mainUi::slot_onSetInfo(QMap<int, QMap<QString, QVariant>> setInfo)
 	btn->setMaximumHeight(this->ui->set_btn->height());
 	btn_ly->addWidget(btn);
 	QObject::connect(btn, &QPushButton::clicked, [=]() {
+		ui_setting->hide();
 		ui_setting->deleteLater();
 	});
 	
@@ -150,10 +158,12 @@ void mainUi::slot_onInit(QMap<QString, int> probs)
 {
 	auto names = probs.keys();
 
+	this->ui->comboBox_prob->clear();
 	this->ui->comboBox_prob->insertItem(0, "");
 
 	for (int idx = 0; idx < names.count(); ++idx)
 	{
+		// 因多一個空白default, 所以加1
 		this->ui->comboBox_prob->insertItem(idx + 1, names.at(idx));
 	}
 }
