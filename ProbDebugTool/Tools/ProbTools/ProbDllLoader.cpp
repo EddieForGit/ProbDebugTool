@@ -332,7 +332,7 @@ void ProbDllLoader::SendToProbDll(google::protobuf::Message * _in_msg)
 		m_protoM->setItem(CmdPack, "data", _in_msg->SerializeAsString());
 		
 		qDebug() << QString("***[send] prob %1").arg(QString::fromStdString(_in_msg->GetDescriptor()->full_name()));
-		qDebug() << QString::fromStdString(_in_msg->DebugString());
+		//qDebug() << QString::fromStdString(_in_msg->DebugString());
 
 		///> ProbIn
 		InDll->Prob_In(0, CmdPack->SerializeAsString().data(), CmdPack->ByteSize());
@@ -349,14 +349,20 @@ void ProbDllLoader::out(int no, int game_id, const char *begin, int size)
 	if (cmd->ParsePartialFromArray(begin, size))
 	{
 		QString type = QString::fromStdString(m_protoM->getItemString(cmd, "type"));
-		qDebug() << QString("***[accept] prob %1").arg(type);
+		auto f_type = type;
+		auto b_type = type;
 		
-		if (type == "SGT.Prob.FiftyLions.CmdOut_NgSpin")
+		qDebug() << QString("***[accept] prob %1").arg(type);
+
+		f_type.remove(type.lastIndexOf("."), type.size() - type.lastIndexOf("."));
+		b_type.remove(0, type.lastIndexOf(".") + 1);
+			
+		if (b_type == "CmdOut_NgSpin" || b_type == "CmdOut_FgSpin")
 		{
-			auto out_prob = m_protoM->getMessage("SGT.Prob.FiftyLions", type);
+			auto out_prob = m_protoM->getMessage(f_type, type);
 			if (out_prob->ParsePartialFromString(m_protoM->getItemString(cmd, "data")))
 			{
-				qDebug() << QString::fromStdString(out_prob->DebugString());
+				//qDebug() << QString::fromStdString(out_prob->DebugString());
 				emit onProb_out(out_prob);
 			}
 		}

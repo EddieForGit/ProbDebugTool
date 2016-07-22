@@ -16,6 +16,7 @@ signals:
 	// to view
 	void onInit(QMap<QString,int>);
 	void onSetInfo(QMap<int, QMap<QString, QVariant>>);
+	void onUpdateUI(QMap<int, QMap<int, QMap<int, QMap<int, int>>>>);
 
 protected slots:
 	void slot_onChangeProb(QString name);

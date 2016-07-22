@@ -4,6 +4,10 @@
 #include <QtWidgets/qlineedit.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qtimer.h>
+#include <QtWidgets/qradiobutton.h>
+
+#include "../BaseInfo.h"
+
 
 mainUi::mainUi(QWidget* parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
@@ -11,17 +15,44 @@ mainUi::mainUi(QWidget* parent, Qt::WindowFlags f)
 {
 	ui = new Ui::ui_main();
 	ui->setupUi(this);
+	ui->set_btn->setEnabled(false);
+
 
 	QObject::connect(this->ui->comboBox_prob, &QComboBox::currentTextChanged, [=](QString str) {
-		if (!str.isEmpty())
+		// 重新選遊戲, 走全部初始流程.
+		if (str.isEmpty())
+		{
+			ui->set_btn->setEnabled(false);
+		}
+		else
+		{
+			if (ui_setting)
+			{
+				// delete 舊有setting ui.
+				ui_setting->deleteLater();
+			}
+
+			// 通知change prob
 			emit this->onChangeProb(str);
+		}
+	});
+
+	QObject::connect(this->ui->set_btn, &QPushButton::clicked, [=]() {
+		if (ui_setting)
+		{
+			ui_setting->show();
+		}
 	});
 }
 
 mainUi::~mainUi()
 {
 	delete ui;
-	ui_setting->deleteLater();
+
+	if (ui_setting)
+	{
+		ui_setting->deleteLater();
+	}
 }
 
 void mainUi::createUiGroupBox(QGroupBox *gb, QString objName, QMap<QString, QVariant> info)
@@ -145,13 +176,56 @@ void mainUi::slot_onSetInfo(QMap<int, QMap<QString, QVariant>> setInfo)
 	btn_ly->addWidget(btn);
 	QObject::connect(btn, &QPushButton::clicked, [=]() {
 		ui_setting->hide();
-		ui_setting->deleteLater();
 	});
 	
 
 	ui_setting->setLayout(ui_ly);
 	ui_setting->setWindowModality(Qt::ApplicationModal);
 	ui_setting->show();
+}
+
+void mainUi::slot_onUpdateUI(QMap<int, QMap<int, QMap<int, QMap<int, int>>>> updateUi)
+{
+	ui_setting->hide();
+	ui->set_btn->setEnabled(true);
+	
+#pragma region createUpdateUiBody // create中間ui部份
+	auto window = ui->data_wdg;
+	
+
+	// Ng/Fg-check btn
+		//auto group = new QGroupBox(window);
+		//group->setDisabled(true);
+		//auto group_ly = new QHBoxLayout();
+		//for (auto idx = 0; idx < Type_Spin::S_count; ++idx)
+		//{
+		//	auto item = new QRadioButton(group);
+		//	if (idx == Type_Spin::S_Ng)
+		//	{
+		//		item->setText("NG");
+		//		item->setChecked(true);
+		//	}
+		//	else if(idx == Type_Spin::S_Fg)
+		//	{
+		//		item->setText("FG");
+		//	}
+		//	group_ly->addWidget(item);
+		//}
+		//group->setLayout(group_ly);
+	
+
+	auto b = 1;
+
+	// 大小輪-select
+
+	// Reels-select
+
+	// serach-btn
+
+	// display-textedit*2
+	
+#pragma endregion
+
 }
 
 void mainUi::slot_onInit(QMap<QString, int> probs)

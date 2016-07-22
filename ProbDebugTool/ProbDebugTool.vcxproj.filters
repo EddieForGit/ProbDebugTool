@@ -51,6 +51,9 @@
     <ClInclude Include="Tools\ProtoTools\ProtoMethod.h">
       <Filter>Tools\ProtoTool</Filter>
     </ClInclude>
+    <ClInclude Include="BaseInfo.h">
+      <Filter>原始程式檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -4,17 +4,20 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qsettings.h>
 #include <QtCore/qfile.h>
+#include "../BaseInfo.h"
+#include <iostream>
 
 PDTModel::PDTModel()
 	: QObject()
 	, m_protoMgr(new protoManager("../protoCollect.ini"))
 	, store_path("../store/")
 	, proto_path("../gen/prob/proto/add_proto.ini")
+	, initOK(false)
 {
 	if (m_protoMgr)
 	{
 		m_loader = new ProbDllLoader(m_protoMgr);
-
+		// m_loader
 		connect(m_loader, SIGNAL(onProb_out(google::protobuf::Message*)), this, SLOT(slot_onProb_out(google::protobuf::Message*)));
 	}
 
@@ -142,26 +145,59 @@ void PDTModel::setSettings(QMap<int, QMap<QString, QVariant>> settings)
 	}
 }
 
-void PDTModel::initStrips()
+QMap<int, QMap<QString, QVariant>> PDTModel::getSettings()
+{
+	return m_settings;
+}
+
+QMap<int, QMap<int, QMap<int, QMap<int, int>>>> PDTModel::getStripsMgr()
+{
+	return m_stripsMgr;
+}
+
+void PDTModel::Spin(int spin_type, int debug_reel_type)
 {
 	auto proto_name = m_protoNames[m_loader->getCurId()];
-	auto msg = m_protoMgr->getMessage(proto_name, QString("%1.%2").arg(proto_name).arg(NG_SPIN));
+	auto msg = m_protoMgr->getMessage(proto_name, QString("%1.%2").arg(proto_name).arg(spin_type == Type_Spin::S_Ng ? NG_SPIN : FG_SPIN));
 
 	for (int idx = 0; idx < msg->GetDescriptor()->field_count(); ++idx)
 	{
 		auto name = QString::fromStdString(msg->GetDescriptor()->field(idx)->name());
 		auto type = msg->GetDescriptor()->field(idx)->type();
-		auto data = m_settings[Type_SetInfo::T_Ng][name];
-		// 判斷此field是不是 [轉輪debug介面]
-		auto isReels = name == m_settings[Type_SetInfo::T_Con][REELS_NAME] ? true : false;
+		auto data = m_settings[spin_type == Type_Spin::S_Ng ? Type_SetInfo::T_Ng : Type_SetInfo::T_Fg][name];
 
-		setProtoFeild(msg, name, type, data, isReels);
+		if (initOK)
+		{
+			// 設定field
+			setProtoFeild(msg, name, type, data);
+		}
+		else
+		{
+			if (name == m_settings[Type_SetInfo::T_Con][REELS_NAME]) // 設定轉輪盤面
+			{
+				auto count = m_settings[Type_SetInfo::T_Con][REEL_SIZE_X].toInt();
+				for (int idx = 0; idx < count; ++idx)
+				{
+					m_protoMgr->addRepeated(msg, name.toStdString(), QVariant(-1));
+				}
+			}
+			else if (name == m_settings[Type_SetInfo::T_Con][STRIPS_NAME]) // 設定大小轉輪
+			{
+				m_protoMgr->setItem(msg, name.toStdString(), QVariant(debug_reel_type));
+			}
+			else
+			{
+				// 設定field
+				setProtoFeild(msg, name, type, data);
+			}
+		}
 	}
 
-	auto stripName = m_settings[Type_SetInfo::T_Con][STRIPS_NAME].toString().toStdString();
-	m_protoMgr->setItem(msg, stripName, -1);
 	m_loader->SendToProbDll(msg);
 }
+
+void PDTModel::clearStripsMgr()
+{ m_stripsMgr.clear(); }
 
 void PDTModel::saveRestore(QMap<int, QMap<QString, QVariant>> data)
 {
@@ -202,46 +238,88 @@ void PDTModel::saveRestore(QMap<int, QMap<QString, QVariant>> data)
 	}
 }
 
-void PDTModel::setProtoFeild(google::protobuf::Message *msg, QString name, int type, QVariant data, bool reels)
+void PDTModel::setProtoFeild(google::protobuf::Message *msg, QString name, int type, QVariant data)
 {
 	if (msg == nullptr || name.isEmpty()) return;
 
-	if (reels) // 此次是不是設定盤面的介面field
+	switch (type)
 	{
-		auto count = m_settings[Type_SetInfo::T_Con][REEL_SIZE_X].toInt();
-		for (int idx = 0; idx < count; ++idx)
-			m_protoMgr->addRepeated(msg, name.toStdString(), QVariant(-1));
-	}
-	else
-	{
-		switch (type)
-		{
-		case google::protobuf::FieldDescriptor::TYPE_BOOL:
-			m_protoMgr->setItem(msg, name.toStdString(), data.toBool());
-			break;
-		case google::protobuf::FieldDescriptor::TYPE_INT32:
-			m_protoMgr->setItem(msg, name.toStdString(), data.toInt());
-			break;
-		case google::protobuf::FieldDescriptor::TYPE_INT64:
-			m_protoMgr->setItem(msg, name.toStdString(), data.toInt());
-			break;
-		case google::protobuf::FieldDescriptor::TYPE_STRING:
-			m_protoMgr->setItem(msg, name.toStdString(), data.toString().toStdString());
-			break;
-			//case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
-			//	m_protoM->setMessageMsg(msg, name, data.to)
-			//break;
-		default:
-			qDebug() << "auto compose proto error.";
-			break;
-		}
+	case google::protobuf::FieldDescriptor::TYPE_BOOL:
+		m_protoMgr->setItem(msg, name.toStdString(), data.toBool());
+		break;
+	case google::protobuf::FieldDescriptor::TYPE_INT32:
+		m_protoMgr->setItem(msg, name.toStdString(), data.toInt());
+		break;
+	case google::protobuf::FieldDescriptor::TYPE_INT64:
+		m_protoMgr->setItem(msg, name.toStdString(), data.toInt());
+		break;
+	case google::protobuf::FieldDescriptor::TYPE_STRING:
+		m_protoMgr->setItem(msg, name.toStdString(), data.toString().toStdString());
+		break;
+		//case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
+		//	m_protoM->setMessageMsg(msg, name, data.to)
+		//break;
+	default:
+		qDebug() << "auto compose proto error.";
+		break;
 	}
 }
 
 void PDTModel::slot_onProb_out(google::protobuf::Message *msg)
 {
-	qDebug() << QString::fromStdString(msg->DebugString());
-	auto b = 1;
+	if (msg == nullptr) return;
+	
+	int type;
+	auto typeName= QString::fromStdString(msg->GetDescriptor()->name());
+	
+	if (typeName == NG_OUT)
+	{
+		type = Type_Spin::S_Ng;
+	} 
+	else if (typeName == FG_OUT)
+	{
+		type = Type_Spin::S_Fg;
+	} 
+
+	if (initOK) // normal prob out
+	{
+		auto b = 1;
+	}
+	else // init strips
+	{	
+		auto strips = m_protoMgr->getRepeatedMessage(msg, m_settings[Type_SetInfo::T_Con][REELS_NAME].toString().toStdString());
+		QMap<int, QMap<int, int>> reel_map;
+		for (auto reel_idx = 0; reel_idx < strips->size(); ++reel_idx)
+		{
+			auto &reel_msg = strips->Get(reel_idx);
+			auto row_size = reel_msg.GetReflection()->FieldSize(reel_msg, reel_msg.GetDescriptor()->FindFieldByName(PROB_REELS_NAME));
+			QMap<int, int> row_map;
+			for (auto row_idx = 0; row_idx < row_size; ++row_idx)
+			{
+				auto value = reel_msg.GetReflection()->GetRepeatedInt32(reel_msg, reel_msg.GetDescriptor()->FindFieldByName(PROB_REELS_NAME), row_idx);
+				row_map.insert(row_idx, value);
+			}
+			reel_map.insert(reel_idx, row_map);
+		}
+		int reelType = m_stripsMgr[type].size();
+		m_stripsMgr[type].insert(reelType, reel_map);
+
+		// adj flag
+		auto b = m_settings[Type_SetInfo::T_Con][STRIP_COUNT_NG].toInt();
+		if (m_stripsMgr[Type_Spin::S_Ng].size() == m_settings[Type_SetInfo::T_Con][STRIP_COUNT_NG].toInt() &&
+			m_stripsMgr[Type_Spin::S_Fg].size() == m_settings[Type_SetInfo::T_Con][STRIP_COUNT_FG].toInt())
+		{
+			this->setInitOK(true);
+			qDebug() << "[Model] init stripsMgr OK.";
+		}
+	}
 }
+
+void PDTModel::setInitOK(bool b)
+{ initOK = b; }
+
+bool PDTModel::getInitOK()
+{ return initOK; }
+
 
 #include "PDTModel.moc"
